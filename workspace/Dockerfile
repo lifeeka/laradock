@@ -432,6 +432,9 @@ RUN if [ ${INSTALL_NODE} = true ]; then \
         && if [ ${INSTALL_NPM_PM2} = true ]; then \
         npm install -g pm2 \
         ;fi \
+        && if [ ${INSTALL_NPM_REACTJS} = true ]; then \
+        npm install -g create-react-app \
+        ;fi \
 ;fi
 
 # Wouldn't execute when added to the RUN statement in the above block

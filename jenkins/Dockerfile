@@ -1,9 +1,12 @@
 FROM jenkins/jenkins:lts
 
+USER root
+RUN apt-get update
 # Add the "PHP 7" ppa
-RUN apt-get install -y software-properties-common && \
-    add-apt-repository -y ppa:ondrej/php
-
+RUN apt-get install -y software-properties-common
+RUN  apt-get install -y  apt-transport-https lsb-release ca-certificates
+RUN  wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+RUN  echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" |  tee /etc/apt/sources.list.d/php.list
 #
 #--------------------------------------------------------------------------
 # Software's Installation

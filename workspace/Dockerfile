@@ -133,6 +133,7 @@ RUN if [ ${COMPOSER_REPO_PACKAGIST} ]; then \
 RUN echo "" >> ~/.bashrc && \
     echo 'export PATH="~/.composer/vendor/bin:$PATH"' >> ~/.bashrc
 
+
 ###########################################################################
 # Non-root user : PHPUnit path
 ###########################################################################

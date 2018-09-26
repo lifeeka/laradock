@@ -400,6 +400,7 @@ ARG INSTALL_NPM_GULP=false
 ARG INSTALL_NPM_BOWER=false
 ARG INSTALL_NPM_VUE_CLI=false
 ARG INSTALL_NPM_PM2=false
+ARG INSTALL_NPM_ESLINT=true
 ARG NPM_REGISTRY
 ENV NPM_REGISTRY ${NPM_REGISTRY}
 ENV NVM_DIR /home/laradock/.nvm
@@ -425,6 +426,9 @@ RUN if [ ${INSTALL_NODE} = true ]; then \
         ;fi \
         && if [ ${INSTALL_NPM_PM2} = true ]; then \
         npm install -g pm2 \
+        ;fi \
+	&& if [ ${INSTALL_NPM_ESLINT} = true ]; then \
+        npm install -g eslint \
         ;fi \
         && if [ ${INSTALL_NPM_REACTJS} = true ]; then \
         npm install -g create-react-app \

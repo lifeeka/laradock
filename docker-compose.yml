@@ -58,6 +58,7 @@ services:
           - INSTALL_SSH2=${WORKSPACE_INSTALL_SSH2}
           - INSTALL_GMP=${WORKSPACE_INSTALL_GMP}
           - INSTALL_SOAP=${WORKSPACE_INSTALL_SOAP}
+          - INSTALL_XSL=${WORKSPACE_INSTALL_XSL}
           - INSTALL_LDAP=${WORKSPACE_INSTALL_LDAP}
           - INSTALL_IMAP=${WORKSPACE_INSTALL_IMAP}
           - INSTALL_MONGO=${WORKSPACE_INSTALL_MONGO}
@@ -70,13 +71,14 @@ services:
           - INSTALL_NPM_GULP=${WORKSPACE_INSTALL_NPM_GULP}
           - INSTALL_NPM_BOWER=${WORKSPACE_INSTALL_NPM_BOWER}
           - INSTALL_NPM_VUE_CLI=${WORKSPACE_INSTALL_NPM_VUE_CLI}
+          - INSTALL_NPM_ANGULAR_CLI=${WORKSPACE_INSTALL_NPM_ANGULAR_CLI}
           - INSTALL_DRUSH=${WORKSPACE_INSTALL_DRUSH}
           - INSTALL_WP_CLI=${WORKSPACE_INSTALL_WP_CLI}
           - INSTALL_DRUPAL_CONSOLE=${WORKSPACE_INSTALL_DRUPAL_CONSOLE}
           - INSTALL_AEROSPIKE=${WORKSPACE_INSTALL_AEROSPIKE}
-          - AEROSPIKE_PHP_REPOSITORY=${AEROSPIKE_PHP_REPOSITORY}
           - INSTALL_V8JS=${WORKSPACE_INSTALL_V8JS}
           - COMPOSER_GLOBAL_INSTALL=${WORKSPACE_COMPOSER_GLOBAL_INSTALL}
+          - COMPOSER_AUTH=${WORKSPACE_COMPOSER_AUTH}
           - COMPOSER_REPO_PACKAGIST=${WORKSPACE_COMPOSER_REPO_PACKAGIST}
           - INSTALL_WORKSPACE_SSH=${WORKSPACE_INSTALL_WORKSPACE_SSH}
           - INSTALL_LARAVEL_ENVOY=${WORKSPACE_INSTALL_LARAVEL_ENVOY}
@@ -135,11 +137,11 @@ services:
           - INSTALL_BLACKFIRE=${INSTALL_BLACKFIRE}
           - INSTALL_SSH2=${PHP_FPM_INSTALL_SSH2}
           - INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP}
+          - INSTALL_XSL=${PHP_FPM_INSTALL_XSL}
           - INSTALL_IMAP=${PHP_FPM_INSTALL_IMAP}
           - INSTALL_MONGO=${PHP_FPM_INSTALL_MONGO}
           - INSTALL_AMQP=${PHP_FPM_INSTALL_AMQP}
           - INSTALL_MSSQL=${PHP_FPM_INSTALL_MSSQL}
-          - INSTALL_ZIP_ARCHIVE=${PHP_FPM_INSTALL_ZIP_ARCHIVE}
           - INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}
           - INSTALL_GMP=${PHP_FPM_INSTALL_GMP}
           - INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS}
@@ -147,7 +149,6 @@ services:
           - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
           - INSTALL_EXIF=${PHP_FPM_INSTALL_EXIF}
           - INSTALL_AEROSPIKE=${PHP_FPM_INSTALL_AEROSPIKE}
-          - AEROSPIKE_PHP_REPOSITORY=${AEROSPIKE_PHP_REPOSITORY}
           - INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}
           - INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}
           - INSTALL_PG_CLIENT=${PHP_FPM_INSTALL_PG_CLIENT}
@@ -164,6 +165,7 @@ services:
           - INSTALL_APCU=${PHP_FPM_INSTALL_APCU}
           - INSTALL_YAML=${PHP_FPM_INSTALL_YAML}
           - INSTALL_ADDITIONAL_LOCALES=${PHP_FPM_INSTALL_ADDITIONAL_LOCALES}
+          - INSTALL_MYSQL_CLIENT=${PHP_FPM_INSTALL_MYSQL_CLIENT}
           - ADDITIONAL_LOCALES=${PHP_FPM_ADDITIONAL_LOCALES}
       volumes:
         - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
@@ -197,6 +199,7 @@ services:
           - INSTALL_ZIP_ARCHIVE=${PHP_WORKER_INSTALL_ZIP_ARCHIVE}
           - INSTALL_MYSQL_CLIENT=${PHP_WORKER_INSTALL_MYSQL_CLIENT}
           - INSTALL_AMQP=${PHP_WORKER_INSTALL_AMQP}
+          - INSTALL_GHOSTSCRIPT=${PHP_WORKER_INSTALL_GHOSTSCRIPT}
           - PUID=${PHP_WORKER_PUID}
           - PGID=${PHP_WORKER_PGID}
       volumes:
@@ -455,6 +458,14 @@ services:
         - ${DATA_PATH_HOST}/redis:/data
       ports:
         - "${REDIS_PORT}:6379"
+      networks:
+        - backend
+
+### Redis Cluster ##########################################
+    redis-cluster:
+      build: ./redis-cluster
+      ports:
+        - "${REDIS_CLUSTER_PORT_RANGE}:7000-7005"
       networks:
         - backend
 
@@ -984,6 +995,7 @@ services:
       depends_on:
         - postgres
         - jupyterhub-user
+      restart: always
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock:rw
         - ${DATA_PATH_HOST}/jupyterhub/:/data
@@ -1388,5 +1400,20 @@ services:
         - ${DATA_PATH_HOST}/couchdb/data:/opt/couchdb/data
       ports:
         - "${COUCHDB_PORT}:5984"
+      networks:
+        - backend
+
+### Manticore Search ###########################################
+    manticore:
+      build:
+        context: ./manticore
+      volumes:
+        - ${MANTICORE_CONFIG_PATH}:/etc/sphinxsearch
+        - ${DATA_PATH_HOST}/manticore/data:/var/lib/manticore/data
+        - ${DATA_PATH_HOST}/manticore/log:/var/lib/manticore/log
+      ports:
+        - "${MANTICORE_API_PORT}:9312"
+        - "${MANTICORE_SPHINXQL_PORT}:9306"
+        - "${MANTICORE_HTTP_PORT}:9308"
       networks:
         - backend
